@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aquagrid"
+version = "0.1.0"
+description = "AI Workload Scheduling with Water, Energy, and Carbon Awareness"
+authors = [{ name = "AquaGrid Team" }]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
+addopts = "-v --strict-markers"
