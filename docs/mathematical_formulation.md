@@ -42,8 +42,8 @@ If site $s$ runs an active GPU load $L(s, t)$ at hour $t$:
 $$E_{\text{IT}}(s, t) = L(s, t) \times P_{\text{GPU}} \times 1\text{ hour} \quad [\text{kWh}]$$
 
 ### 3.2 Total Facility Energy & PUE
-Power Usage Effectiveness ($\text{PUE}$) models facility overhead (lighting, power conversion, cooling):
-$$\text{PUE}(s, t) = \text{PUE}_{\text{base}}(s) + \eta_s \cdot \max(0, T_{\text{amb}}(s, t) - T_{\text{cooling\_threshold}})$$
+Power Usage Effectiveness ($\text{PUE}$) models facility overhead (lighting, power conversion, cooling). It scales linearly with ambient temperature above the economizer threshold with slope $\eta_s$ (`pue_temp_slope`):
+$$\text{PUE}(s, t) = \text{PUE}_{\text{base}}(s) + \eta_s \cdot \max(0, T_{\text{amb}}(s, t) - T_{\text{economizer}})$$
 $$E_{\text{total}}(s, t) = E_{\text{IT}}(s, t) \times \text{PUE}(s, t) \quad [\text{kWh}]$$
 
 ### 3.3 Direct Cooling Water Consumption
@@ -93,4 +93,4 @@ $$\text{Cost}(s, t) = E_{\text{total}}(s, t) \times \text{Price}(s, t) \quad [\$
 ### Objective Function
 Minimize the normalized weighted trade-off:
 $$\min \;\; \alpha \cdot \frac{\text{Total Cost}}{\text{Norm}_{\text{cost}}} + \beta \cdot \frac{\text{Total Carbon}}{\text{Norm}_{\text{carbon}}} + \gamma \cdot \frac{\text{Total Water}}{\text{Norm}_{\text{water}}}$$
-where $\alpha + \beta + \gamma = 1.0$ and $\alpha, \beta, \gamma \ge 0$.
+where $\alpha + \beta + \gamma = 1.0$, $\alpha, \beta, \gamma \ge 0$, and $\text{Total Water} = \sum_{s \in S} \sum_{t \in T} (W_{\text{direct}}(s, t) + W_{\text{indirect}}(s, t))$.

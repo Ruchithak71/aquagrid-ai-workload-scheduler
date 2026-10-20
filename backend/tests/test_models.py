@@ -34,6 +34,7 @@ class TestDatacenterSiteModel:
         assert site.id == "phoenix-01"
         assert site.gpu_capacity == 128
         assert site.cooling_type == CoolingTechnology.EVAPORATIVE
+        assert site.pue_temp_slope == 0.01
 
     def test_invalid_gpu_capacity_zero_or_negative(self):
         with pytest.raises(ValidationError) as exc:
@@ -57,6 +58,18 @@ class TestDatacenterSiteModel:
                 daily_water_budget_liters=1000.0,
             )
         assert "greater than or equal to 1" in str(exc.value)
+
+    def test_invalid_pue_temp_slope_negative(self):
+        with pytest.raises(ValidationError) as exc:
+            DatacenterSite(
+                id="site-bad-pue-slope",
+                name="Bad PUE Slope Site",
+                location="Nowhere",
+                gpu_capacity=10,
+                pue_temp_slope=-0.02,  # Must be >= 0.0
+                daily_water_budget_liters=1000.0,
+            )
+        assert "greater than or equal to 0" in str(exc.value)
 
 
 class TestWorkloadModel:

@@ -31,6 +31,11 @@ class DatacenterSite(BaseModel):
         ge=1.0,
         description="Baseline Power Usage Effectiveness (>= 1.0)",
     )
+    pue_temp_slope: float = Field(
+        default=0.01,
+        ge=0.0,
+        description="Rate of PUE increase per °C above economizer threshold",
+    )
     base_wue: float = Field(
         default=0.2,
         ge=0.0,
