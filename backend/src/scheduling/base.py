@@ -8,6 +8,9 @@ from src.models import (
     SiteEnvironmentalProfile,
     Workload,
     ScheduleResult,
+    HourlyExecution,
+    WorkloadSchedule,
+    ScheduleMetrics,
 )
 
 
@@ -49,3 +52,48 @@ class BaseScheduler(ABC):
         elapsed = round(time.perf_counter() - start, 4)
         # Inject actual solve time without mutating user's result object
         return result.model_copy(update={"solve_time_seconds": elapsed})
+
+    @staticmethod
+    def _aggregate_metrics(
+        executions: list[HourlyExecution],
+        schedules: list[WorkloadSchedule],
+        sites: list[DatacenterSite],
+    ) -> ScheduleMetrics:
+        """Sum up all hourly execution slices into aggregate metrics."""
+        total_it_energy = sum(e.it_energy_kwh for e in executions)
+        total_facility_energy = sum(e.total_energy_kwh for e in executions)
+        total_direct_water = sum(e.direct_water_liters for e in executions)
+        total_indirect_water = sum(e.indirect_water_liters for e in executions)
+        total_carbon = sum(e.carbon_kg for e in executions)
+        total_cost = sum(e.cost_usd for e in executions)
+
+        jobs_scheduled = sum(1 for s in schedules if s.scheduled)
+        jobs_unscheduled = sum(1 for s in schedules if not s.scheduled)
+        deadline_violations = sum(
+            1 for s in schedules if s.scheduled and not s.deadline_met
+        )
+
+        site_water: dict[str, float] = {site.id: 0.0 for site in sites}
+        for e in executions:
+            site_water[e.site_id] = site_water.get(e.site_id, 0.0) + e.direct_water_liters
+
+        site_budgets = {site.id: site.daily_water_budget_liters for site in sites}
+        water_violations = sum(
+            max(0.0, used - site_budgets.get(sid, float("inf")))
+            for sid, used in site_water.items()
+        )
+
+        return ScheduleMetrics(
+            total_it_energy_kwh=round(total_it_energy, 4),
+            total_facility_energy_kwh=round(total_facility_energy, 4),
+            total_direct_water_liters=round(total_direct_water, 4),
+            total_indirect_water_liters=round(total_indirect_water, 4),
+            total_water_liters=round(total_direct_water + total_indirect_water, 4),
+            total_carbon_kg=round(total_carbon, 4),
+            total_cost_usd=round(total_cost, 4),
+            jobs_scheduled=jobs_scheduled,
+            jobs_unscheduled=jobs_unscheduled,
+            deadline_violations=deadline_violations,
+            water_budget_violations_liters=round(water_violations, 4),
+            site_water_consumption={sid: round(v, 4) for sid, v in site_water.items()},
+        )
