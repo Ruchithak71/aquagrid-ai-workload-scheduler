@@ -16,7 +16,7 @@ class TestDefaultSitesDataset:
         sites = get_default_sites()
         assert len(sites) == 3
 
-        ids = [s.id for s in sites]
+        ids = [s.id for s in sites] 
         assert len(ids) == len(set(ids))
         assert "phoenix-01" in ids
         assert "quincy-01" in ids
