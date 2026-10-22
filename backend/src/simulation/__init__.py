@@ -14,6 +14,17 @@ from src.simulation.datasets import (
     get_default_workloads,
 )
 
+from src.simulation.diagnoser import (
+    DiagnosticIssue,
+    FeasibilityReport,
+    diagnose_scenario,
+)
+from src.simulation.comparator import (
+    BenchmarkReport,
+    SchedulerComparisonRow,
+    compare_schedulers,
+)
+
 __all__ = [
     "calculate_hourly_pue",
     "calculate_hourly_wue",
@@ -24,4 +35,10 @@ __all__ = [
     "get_default_sites",
     "get_default_environmental_profiles",
     "get_default_workloads",
+    "DiagnosticIssue",
+    "FeasibilityReport",
+    "diagnose_scenario",
+    "BenchmarkReport",
+    "SchedulerComparisonRow",
+    "compare_schedulers",
 ]
