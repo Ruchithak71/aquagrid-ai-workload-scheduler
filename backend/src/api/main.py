@@ -8,11 +8,16 @@ from src.api.routes import (
     sites_router,
     workloads_router,
     scheduling_router,
+    history_router,
 )
+from src.db.session import init_db
 
 
 def create_app() -> FastAPI:
     """Application factory for AquaGrid backend."""
+    # Ensure database tables exist
+    init_db()
+
     app = FastAPI(
         title="AquaGrid: AI Workload Scheduler",
         description=(
@@ -38,6 +43,7 @@ def create_app() -> FastAPI:
     app.include_router(sites_router, prefix="/api")
     app.include_router(workloads_router, prefix="/api")
     app.include_router(scheduling_router, prefix="/api")
+    app.include_router(history_router, prefix="/api")
 
     @app.get("/", tags=["Root"])
     def root():
