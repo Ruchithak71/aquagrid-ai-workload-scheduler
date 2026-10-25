@@ -10,7 +10,11 @@ import type {
   BenchmarkRunSummary,
 } from "../types";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== "undefined" && window.location.port === "5173"
+    ? "http://localhost:8000/api"
+    : "/api");
 
 export async function checkBackendHealth(): Promise<boolean> {
   try {
